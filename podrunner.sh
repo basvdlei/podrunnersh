@@ -1,7 +1,7 @@
 #!/bin/bash
 # podrunner.sh - wrapper around `podman run` for common integration cases.
 #
-# Copyright 2019 B. van der Lei
+# Copyright (c) 2019, Bas van der Lei
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
