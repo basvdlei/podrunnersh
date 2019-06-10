@@ -114,15 +114,15 @@ for opt in "$@"; do
 			x11_socket
 			shift
 			;;
-		*)
-			# add unknown options as raw podman options.
-			podman_run_options+=("$1")
+		"--")
 			shift
+			break
+			;;
+		*)
+			echo "unknown option $1" >&2
+			exit 1
 			;;
 	esac
 done
 
-# print all options quoted
-if [[ ${#podman_run_options[@]} -gt 0 ]]; then
-	printf "'%s' " "${podman_run_options[@]}"
-fi
+exec podman run "${podman_run_options[@]}" "$@"
