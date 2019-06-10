@@ -28,6 +28,15 @@ function add_option
 	podman_run_options+=("$arg2")
 }
 
+# libvirtd exposes the libvird socket inside the container.
+function libvirtd
+{
+	add_option --env "${XDG_RUNTIME_DIR}=${XDG_RUNTIME_DIR}"
+	add_option --volume "${XDG_RUNTIME_DIR}:${XDG_RUNTIME_DIR}"
+	add_option --volume /run/libvirt:/run/libvirt
+	add_option --security-opt "label=disable"
+}
+
 # map_user maps your user to the same uid inside the container instead of root.
 function map_user
 {
@@ -77,11 +86,12 @@ function x11_socket
 # usage prints help.
 function usage
 {
-	echo "Usage: podrunner.sh [PODMAN RUN OPTION...] [OPTION...]"
+	echo "Usage: podrunner.sh [OPTION...] -- [PODMAN RUN OPTIONS...]"
 	echo ""
+	echo "  --homedir       Make homedir transparent inside the container."
+	echo "  --libvirtd      Expose libvird socket inside the container."
 	echo "  --map-user      Map OS user to user 1000 inside the container."
 	echo "  --ssh-agent     Expose ssh-agent inside the container."
-	echo "  --homedir       Make homedir transparent inside the container."
 	echo "  --utf8          Enable basic UTF8 support in most containers."
 	echo "  --x11           Expose X11 socket inside the container."
 }
@@ -96,6 +106,10 @@ for opt in "$@"; do
 
 		"--homedir")
 			transparent_homedir
+			shift
+			;;
+		"--libvirtd")
+			libvirtd
 			shift
 			;;
 		"--map-user")
