@@ -92,6 +92,7 @@ function ssh_agent
 {
 	add_option --volume "${SSH_AUTH_SOCK}:${SSH_AUTH_SOCK}"
 	add_option --env "SSH_AUTH_SOCK=${SSH_AUTH_SOCK}"
+	add_option --security-opt "label=disable"
 }
 
 # utf8_support enables generic utf-8 in most containers.
@@ -107,6 +108,7 @@ function x11_socket
 	add_option --env "DISPLAY=${DISPLAY}"
 	add_option --env "XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR}"
 	add_option --volume "${XDG_RUNTIME_DIR}:${XDG_RUNTIME_DIR}"
+	add_option --security-opt "label=disable"
 }
 
 # usage prints help.
