@@ -77,6 +77,15 @@ function map_user
 	add_option --security-opt "label=disable"
 }
 
+# pulseaudio exposes pulseaudio socket and config.
+function pulseaudio
+{
+	add_option --volume "/etc/machine-id:/etc/machine-id:ro"
+	add_option --env "XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR}"
+	add_option --volume "${XDG_RUNTIME_DIR}:${XDG_RUNTIME_DIR}"
+	add_option --security-opt "label=disable"
+}
+
 # transparent_homedir make the homedir accesible and matches the current
 # working directory.
 function transparent_homedir
@@ -125,6 +134,7 @@ function usage
 	echo "  --homedir       Make homedir transparent inside the container."
 	echo "  --libvirtd      Expose libvirtd socket inside the container."
 	echo "  --map-user      Map host user to user with same uid inside the container."
+	echo "  --pulseaudio    Expose pulseaudio sound server inside the container."
 	echo "  --ssh-agent     Expose ssh-agent inside the container."
 	echo "  --utf8          Enable basic UTF8 support in most containers."
 	echo "  --x11           Expose X11 socket inside the container."
@@ -148,6 +158,10 @@ for opt in "$@"; do
 			;;
 		"--map-user")
 			map_user
+			shift
+			;;
+		"--pulseaudio")
+			pulseaudio
 			shift
 			;;
 		"--ssh-agent")

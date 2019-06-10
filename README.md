@@ -16,6 +16,7 @@ Usage: podrunner.sh [OPTION...] -- [PODMAN RUN OPTIONS...]
   --homedir       Make homedir transparent inside the container.
   --libvirtd      Expose libvirtd socket inside the container.
   --map-user      Map host user to user with same uid inside the container.
+  --pulseaudio    Expose pulseaudio sound server inside the container.
   --ssh-agent     Expose ssh-agent inside the container.
   --utf8          Enable basic UTF8 support in most containers.
   --x11           Expose X11 socket inside the container.
