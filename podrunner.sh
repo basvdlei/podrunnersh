@@ -108,6 +108,7 @@ function x11_socket
 	add_option --env "DISPLAY=${DISPLAY}"
 	add_option --env "XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR}"
 	add_option --volume "${XDG_RUNTIME_DIR}:${XDG_RUNTIME_DIR}"
+	add_option --volume "/tmp/.X11-unix:/tmp/.X11-unix"
 	add_option --security-opt "label=disable"
 }
 
