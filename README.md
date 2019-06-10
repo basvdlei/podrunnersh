@@ -5,8 +5,8 @@ Podrunner.sh makes `podman run` shell aliases for custom containers more
 manageable. When running custom container images on
 [Silverblue](https://silverblue.fedoraproject.org/) some common cases like
 having a transparent home directory, exposing ssh-agent, etc. often return.
-This wrapper script provides convenient options to start containers with these
-cases.
+This wrapper script provides convenient options to start containers with the
+arguments needed to enable these cases.
 
 ## Usage
 
