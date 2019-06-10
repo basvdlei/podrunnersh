@@ -56,7 +56,7 @@ function add_option
 # libvirtd exposes the libvird socket inside the container.
 function libvirtd
 {
-	add_option --env "${XDG_RUNTIME_DIR}=${XDG_RUNTIME_DIR}"
+	add_option --env "XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR}"
 	add_option --volume "${XDG_RUNTIME_DIR}:${XDG_RUNTIME_DIR}"
 	add_option --volume /run/libvirt:/run/libvirt
 	add_option --security-opt "label=disable"
@@ -105,6 +105,7 @@ function utf8_support
 function x11_socket
 {
 	add_option --env "DISPLAY=${DISPLAY}"
+	add_option --env "XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR}"
 	add_option --volume "${XDG_RUNTIME_DIR}:${XDG_RUNTIME_DIR}"
 }
 
