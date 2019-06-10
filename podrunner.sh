@@ -32,29 +32,25 @@ set -euo pipefail
 
 podman_run_options=()
 
-# add_option will add a pair of cmd args when they do not yet exist.
-# input:  2 arguments to add
-# output: updates podman_run_options
+# add_option adds to podman_run_options unless they already exist.
 function add_option
 {
-	# arguments to add to run options
-	local arg1="${1}"
-	local arg2="${2}"
-
-	foundfirst=false
-	for opt in "${podman_run_options[@]}"; do
-		if [[ "$foundfirst" == true ]] && [[ "$opt" == "$arg2" ]]; then
-			# option already added
-			return
-		fi
-		if [[ "$foundfirst" == false ]] && [[ "$opt" == "$arg1" ]]; then
-			foundfirst=true
-		else
-			foundfirst=false
-		fi
-	done
-	podman_run_options+=("$arg1")
-	podman_run_options+=("$arg2")
+	local nopts="$#"
+	local opts=("$@")
+	if [[ "$nopts" -lt 1 ]]; then
+		# noop
+		return
+	elif [[ "${#podman_run_options[@]}" -ge "$nopts" ]]; then
+		local last=$(( "${#podman_run_options[@]}" - "$nopts" ))
+		for (( i=0; i<=last; i++ )); do
+			slice=("${podman_run_options[@]:${i}:$nopts}")
+			if [[ "${opts[*]}" == "${slice[*]}" ]]; then
+				# already there
+				return
+			fi
+		done
+	fi
+	podman_run_options+=("${opts[@]}")
 }
 
 # libvirtd exposes the libvird socket inside the container.
