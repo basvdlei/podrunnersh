@@ -78,12 +78,18 @@ function map_user
 }
 
 # pulseaudio exposes pulseaudio socket and config.
-function pulseaudio
+function pulseaudio_socket
 {
-	add_option --volume "/etc/machine-id:/etc/machine-id:ro"
-	add_option --env "XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR}"
-	add_option --volume "${XDG_RUNTIME_DIR}:${XDG_RUNTIME_DIR}"
-	add_option --security-opt "label=disable"
+	local socket="${XDG_RUNTIME_DIR}/pulse/native"
+	if [[ -S "$socket" ]]; then
+		add_option --volume "/etc/machine-id:/etc/machine-id:ro"
+		add_option --env "XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR}"
+		add_option --volume "${socket}:${socket}"
+		add_option --security-opt "label=disable"
+	else
+		echo "error: pulseaudio socket not found" >&2
+		return 1
+	fi
 }
 
 # transparent_homedir make the homedir accesible and matches the current
@@ -111,19 +117,38 @@ function utf8_support
 	add_option --env "TERM=${TERM}"
 }
 
+# wayland_socket exposes the wayland socket inside the container.
+function wayland_socket
+{
+	local socket="${XDG_RUNTIME_DIR}/${WAYLAND_DISPLAY}"
+	if [[ -S "${socket}" ]] && [[ -f "${socket}.lock" ]] ; then
+		add_option --env "XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR}"
+		add_option --env "WAYLAND_DISPLAY=${WAYLAND_DISPLAY}"
+		add_option --volume "${socket}:${socket}"
+		add_option --volume "${socket}.lock:${socket}.lock"
+	else
+		echo "error: wayland socket not found" >&2
+		return 1
+	fi
+	add_option --security-opt "label=disable"
+}
+
 # x11_socket exposes the x11 socket inside the container.
 function x11_socket
 {
-	add_option --env "DISPLAY=${DISPLAY}"
-	add_option --env "XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR}"
-	add_option --volume "${XDG_RUNTIME_DIR}:${XDG_RUNTIME_DIR}"
-	if [[ -d "/tmp/.X11-unix" ]]; then
-		add_option --volume "/tmp/.X11-unix:/tmp/.X11-unix"
+	local socket_dir=/tmp/.X11-unix
+	if [[ -d "$socket_dir" ]]; then
+		add_option --env "DISPLAY=${DISPLAY}"
+		add_option --volume "${socket_dir}:${socket_dir}"
+		# add direct rendering device if it exists.
+		if [[ -d /dev/dri ]]; then
+			add_option --device /dev/dri
+		fi
+		add_option --security-opt "label=disable"
+	else
+		echo "error: x11 socket dir not found" >&2
+		return 1
 	fi
-	if [[ -d /dev/dri ]]; then
-		add_option --device /dev/dri
-	fi
-	add_option --security-opt "label=disable"
 }
 
 # usage prints help.
@@ -137,6 +162,7 @@ function usage
 	echo "  --pulseaudio    Expose pulseaudio sound server inside the container."
 	echo "  --ssh-agent     Expose ssh-agent inside the container."
 	echo "  --utf8          Enable basic UTF8 support in most containers."
+	echo "  --wayland       Expose Wayland socket inside the container."
 	echo "  --x11           Expose X11 socket inside the container."
 }
 
@@ -161,7 +187,7 @@ for opt in "$@"; do
 			shift
 			;;
 		"--pulseaudio")
-			pulseaudio
+			pulseaudio_socket
 			shift
 			;;
 		"--ssh-agent")
@@ -170,6 +196,10 @@ for opt in "$@"; do
 			;;
 		"--utf8")
 			utf8_support
+			shift
+			;;
+		"--wayland")
+			wayland_socket
 			shift
 			;;
 		"--x11")
